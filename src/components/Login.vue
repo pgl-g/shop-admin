@@ -72,13 +72,13 @@ export default {
     priClick() {
       this.$refs.loginref.validate(async val => {
         if (!val) return
-        const { data: res } = await this.$http.post('priClick', this.Loginform)
+        const { data: res } = await this.$http.post('login', this.Loginform)
         if (res.meta.status !== 200) return this.$message.error('登入失败')
         this.$message.success('登入成功')
         // 1.将登录成功之后的token，保存到客户端的 sessionStorage 中
         //  1.1 项目中除了登录之外的其他API接口，必须在登入之后才能访问
         //  1.2 token 只应在当前网站打开期间生效，所有将token保存在sessionStorage中
-        console.log(res)
+        /* console.log(res) */
         window.sessionStorage.setItem('token', res.data.token)
 
         this.$router.push('/home')
@@ -89,7 +89,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .login_container {
   background: #2b4b6b;
   height: 100%;

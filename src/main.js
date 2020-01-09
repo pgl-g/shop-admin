@@ -11,7 +11,14 @@ import 'element-ui/lib/theme-chalk/index.css'
 
 Vue.prototype.$http = axios
 // 配置请求的跟路径
-axios.defaults.baseURL = 'https://www.liulongbin.top:8888/api/private/v1/login'
+axios.defaults.baseURL = 'https://www.liulongbin.top:8888/api/private/v1/'
+// 配置axios拦截器
+axios.interceptors.request.use( config => {
+ /*  console.log(config) */
+ /* 为请求头对象，添加Token 验证的Authorization字段 */
+  config.headers.Authorization = window.sessionStorage.getItem('token')
+ return config
+})
 
 Vue.use(ElementUI)
 // 全局样式
