@@ -37,7 +37,7 @@
       <el-dialog
         title="添加用户"
         :visible.sync="dialogVisible"
-        width="30%"
+        width="50%"
         @close="addialigclose"
       >
         <!-- 主题内容 -->
@@ -71,7 +71,7 @@
       <el-dialog
         title="修改用户的信息"
         :visible.sync="EditdialogVisible"
-        width="30%"
+        width="50%"
         @close="edituserClose"
       >
         <el-form
@@ -95,7 +95,33 @@
           <el-button type="primary" @click="editfromvisible">确 定</el-button>
         </span>
       </el-dialog>
-
+      <!-- 分配角色的对话框 -->
+      <el-dialog
+        title="分配的信息"
+        :visible.sync="SetdialogVisible"
+        width="50%"
+        @close="setuserpower"
+      >
+        <div class="setuse">
+          <p>当前的用户:{{ userinfo.username }}</p>
+          <p>当前的角色:{{ userinfo.role_name }}</p>
+          <p>
+            分配新角色:<el-select v-model="selectID" placeholder="请选择">
+              <el-option
+                v-for="item in rightsList"
+                :key="item.id"
+                :label="item.roleName"
+                :value="item.id"
+              >
+              </el-option>
+            </el-select>
+          </p>
+        </div>
+        <span slot="footer">
+          <el-button @click="SetdialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="Setdisalog">确 定</el-button>
+        </span>
+      </el-dialog>
       <!-- 表格 -->
       <el-table :data="usersList" border stripe>
         <el-table-column type="index"></el-table-column>
@@ -138,6 +164,7 @@
                 type="primary"
                 icon="el-icon-share"
                 size="mini"
+                @click="setuser(scope.row)"
               ></el-button>
             </el-tooltip>
           </template>
@@ -231,7 +258,15 @@ export default {
           { required: true, message: '请输入正确的手机号', trigger: 'blur' },
           { validator: checkMobile, trigger: 'blur' }
         ]
-      }
+      },
+      // 分配角色的布尔值
+      SetdialogVisible: false,
+      // 需要被分配角色的用户信息
+      userinfo: {},
+      // 分配角色的用户数据
+      rightsList: [],
+      // 为选中的角色添加双向绑定
+      selectID: ''
     }
   },
   created() {
@@ -324,43 +359,86 @@ export default {
       })
     },
     // 移除用户id
-   async removeuser(id){
-     // 弹窗询问用户是否删除数据
-     const confirmRes = await this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+    async removeuser(id) {
+      // 弹窗询问用户是否删除数据
+      const confirmRes = await this.$confirm(
+        '此操作将永久删除该文件, 是否继续?',
+        '提示',
+        {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
-        }).catch(err => err)
-        /* console.log(confirmRes) */
-        // 如果用户确认了删除，则返回值为字符串 confirm
-        // 如果用户取消了删除，则返回的为字符串 cancel
-        if(confirmRes !== 'confirm'){
-         return this.$message.info('已取消删除')
         }
-      const {data:res} = await this.$http.delete(`users/${id}`)
-            if(res.meta.status !== 200){
-              return this.$message.error('删除失败')
-            }
-            this.$message.success('删除成功')
-            this.getusersList()
+      ).catch(err => err)
+      /* console.log(confirmRes) */
+      // 如果用户确认了删除，则返回值为字符串 confirm
+      // 如果用户取消了删除，则返回的为字符串 cancel
+      if (confirmRes !== 'confirm') {
+        return this.$message.info('已取消删除')
+      }
+      const { data: res } = await this.$http.delete(`users/${id}`)
+      if (res.meta.status !== 200) {
+        return this.$message.error('删除失败')
+      }
+      this.$message.success('删除成功')
+      this.getusersList()
+    },
+    // 监听分配角色的单击显示与隐藏
+    async setuser(userinfo) {
+      this.userinfo = userinfo
+
+      const { data: res } = await this.$http.get('roles')
+      if (res.meta.status !== 200) {
+        return this.$message.error('获取列表失败')
+      }
+      this.rightsList = res.data
+      this.SetdialogVisible = true
+    },
+    // 对话框确定按钮，请求数据
+    async Setdisalog() {
+      if (!this.selectID) {
+        return this.$message.error('请重新选择')
+      }
+
+      const { data: res } = await this.$http.put(
+        `users/${this.userinfo.id}/role`,
+        {
+          rid: this.selectID
+        }
+      )
+      if (res.meta.status !== 200) {
+        return this.$message.error('设置角色失败')
+      }
+      this.$message.success('设置角色成功')
+      this.getusersList()
+      this.SetdialogVisible = false
+    },
+    // 重置分配角色关闭
+    setuserpower() {
+     this.selectID = ''
+     this.userinfo = {}
     }
   }
 }
 </script>
 
 <style>
-.el-card__body {
+/* .el-card__body {
   height: 500px;
-}
+} */
 .el-breadcrumb {
   margin-bottom: 15px;
   font-size: 14px;
+}
+.el-main {
+  line-height: 0px;
 }
 .el-card__body .el-row .el-col {
   height: 100px;
   line-height: 100px;
 }
-/* .el-form-item .el-form-item__label{
-  width: 150px !important;
-} */
+
+.setuse p {
+  line-height: 60px;
+}
 </style>
