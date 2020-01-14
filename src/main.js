@@ -2,12 +2,16 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
-
 import axios from 'axios'
+// 可下拉表格展示子项
+import TreeTable from 'vue-table-with-tree-grid'
 
 // element ui
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
+
+// 使用可下拉表格展示子项
+Vue.component('tree-table', TreeTable)
 
 Vue.prototype.$http = axios
 // 配置请求的跟路径
