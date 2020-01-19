@@ -80,12 +80,14 @@ export default {
       usergoods: {
         query: '',
         pagenum: 1,
-        pagesize: 10
+        pagesize: 10,
+        order_id:''
       },
       // 总共商品条数
       total: 0,
       // goods的商品的总数据
-      userList: []
+      userList: [],
+      
     }
   },
   created() {
