@@ -8,3 +8,6 @@ html,body,#app{
 .el-card{
     margin-top: 15px;
 }
+.ql-container {
+    min-height: 300px;
+}
